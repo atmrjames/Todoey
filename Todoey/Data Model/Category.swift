@@ -12,6 +12,7 @@ import RealmSwift
 class Category: Object {
     
     @objc dynamic var name: String = ""
+    @objc dynamic var colour: String = ""
     //attribute definition
     
     let items = List<Item>()

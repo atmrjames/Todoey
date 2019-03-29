@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 class CategoryViewController: SwipeTableViewController {
     
@@ -22,7 +23,17 @@ class CategoryViewController: SwipeTableViewController {
         
         loadCategories()
         //load all categories
+        
+        tableView.separatorStyle = .none
 
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+
+        guard let categoryNavBar = navigationController?.navigationBar else {fatalError("Navigation controller does not exist.")}
+
+        categoryNavBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: ContrastColorOf(categoryNavBar.barTintColor!, returnFlat: true)]
+        
     }
     
     
@@ -38,9 +49,16 @@ class CategoryViewController: SwipeTableViewController {
         
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
-        cell.textLabel?.text = categories?[indexPath.row].name ?? "No categories added yet"
-        //Names the cells based on the data in this array
-        //Shows message if there are no categories
+        if let category = categories?[indexPath.row] {
+        
+            cell.textLabel?.text = category.name
+            
+            guard let categoryColour = UIColor(hexString: category.colour) else {fatalError()}
+            
+            cell.backgroundColor = categoryColour
+            cell.textLabel?.textColor = ContrastColorOf(categoryColour, returnFlat: true)
+            
+        }
         
         return cell
     }
@@ -53,6 +71,8 @@ class CategoryViewController: SwipeTableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         performSegue(withIdentifier: "goToItems", sender: self)
+        
+        tableView.deselectRow(at: indexPath, animated: true)
         
     }
     
@@ -131,6 +151,8 @@ class CategoryViewController: SwipeTableViewController {
             
             newCategory.name = textField.text!
             //Changes the category name to what was typed in by the user
+            
+            newCategory.colour = UIColor.randomFlat.hexValue()
   
             self.save(category: newCategory)
             //passes the new category to the save function
